@@ -1,11 +1,14 @@
 import 'dart:async';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:resq/Screens/Places.dart';
 import 'package:resq/const.dart';
+import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -110,6 +113,9 @@ class _MapScreenState extends State<MapScreen> {
               LatLng(currentLocation.latitude!, currentLocation.longitude!);
           // ignore: avoid_print
           // print("Location Updated: $_currentLocation");
+          ///TODO: implement firebase firestore to store current location when user moves
+
+          // this method is used to change camera position to the current location
           _cameraToPosition(_currentLocation!);
         });
       }
