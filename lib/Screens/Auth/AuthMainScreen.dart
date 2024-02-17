@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:resq/Controller/AuthControllers/AuthMainController.dart';
+import 'package:resq/Controller/AuthControllers/OtpVerifiController.dart';
+import 'package:resq/Screens/Auth/OtpVerifyScreen.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -12,6 +14,7 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   final AuthMainController _authMainController = Get.put(AuthMainController());
+  var id = "";
 
   @override
   Widget build(BuildContext context) {
@@ -74,17 +77,25 @@ class _SignInScreenState extends State<SignInScreen> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
-                  onPressed: () {
-                    if (_authMainController.phoneNum.length < 10) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Please enter a valid phone number!"),
-                        ),
-                      );
-                    } else {
-                      _authMainController.registerUser(
-                          _authMainController.phoneNum, context);
-                    }
+                  onPressed: () async {
+                    AuthService.sentOtp(
+                      phone: _authMainController.phoneNum,
+                      errorStep: () {
+                        Get.snackbar(
+                          "Error",
+                          "Error in sending OTP",
+                          snackPosition: SnackPosition.BOTTOM,
+                        );
+                      },
+                      nextStep: () {
+                        setState(() {
+                          id = AuthService.verifyId;
+                        });
+                        Get.to(() => MyVerify(
+                              id: id,
+                            ));
+                      },
+                    );
                   },
                   child: const Text("SignIn/SignUp"),
                 )

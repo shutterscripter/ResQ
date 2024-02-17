@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:resq/Screens/Auth/OtpVerifyScreen.dart';
 
 class AuthMainController extends GetxController {
   var phoneNum = '';
@@ -11,7 +12,7 @@ class AuthMainController extends GetxController {
 
     _auth.verifyPhoneNumber(
         phoneNumber: mobile,
-        timeout: Duration(seconds: 60),
+        timeout: const Duration(seconds: 60),
         verificationCompleted: (AuthCredential authCredential) {
           _auth
               .signInWithCredential(authCredential)
@@ -24,8 +25,16 @@ class AuthMainController extends GetxController {
         verificationFailed: (FirebaseAuthException authException) {
           Get.snackbar('Error', authException.message.toString());
         },
-        codeSent: (String verificationId, [int? forceResendingToken]) {
-          Get.snackbar('Success', 'OTP sent');
+        codeSent: (String verificationId, [int? forceResendingToken]) async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content:
+                  Text('Please check your phone for the verification code'),
+            ),
+          );
+          Future.delayed(const Duration(seconds: 4), () {
+
+          });
         },
         codeAutoRetrievalTimeout: (String verificationId) {
           Get.snackbar('Error', 'Time out');

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:resq/Screens/MapScreen.dart';
+import 'package:resq/Screens/Menu/MenuScreen.dart';
 import 'package:resq/Screens/Places.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return [
       const MapScreen(),
       const Places(),
-      Container(color: Colors.blue), // Menu screen
+      MenuScreen(), // Menu screen
     ];
   }
 
@@ -75,7 +76,8 @@ class _HomeScreenState extends State<HomeScreen> {
           duration: Duration(milliseconds: 300),
         ),
         navBarStyle:
-        NavBarStyle.style15, // Choose the nav bar style with this property
+        // NavBarStyle.style15, // Choose the nav bar style with this property
+        NavBarStyle.style1, // Choose the nav bar style with this property
       );
   }
 }

@@ -15,10 +15,8 @@ class Places extends StatefulWidget {
 }
 
 class _PlacesState extends State<Places> {
-
-
-  final _controller =  TextEditingController();
-  var uuid =  const Uuid();
+  final _controller = TextEditingController();
+  var uuid = const Uuid();
   String _sessionToken = '1234567890';
   List<dynamic> _placeList = [];
 
@@ -40,13 +38,11 @@ class _PlacesState extends State<Places> {
   }
 
   void getSuggestion(String input) async {
-
-
-    const String PLACES_API_KEY = 'AIzaSyBShd7IXegWrvhOs9sYrVT5QUuHYLLpRfs';
-
-    try{
-      String baseURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
-      String request = '$baseURL?input=$input&key=$PLACES_API_KEY&sessiontoken=$_sessionToken';
+    try {
+      String baseURL =
+          'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+      String request =
+          '$baseURL?input=$input&key=$PLACES_API_KEY&sessiontoken=$_sessionToken';
 
       var response = await http.get(Uri.parse(request));
       var data = json.decode(response.body);
@@ -61,11 +57,9 @@ class _PlacesState extends State<Places> {
       } else {
         throw Exception('Failed to load predictions');
       }
-    }catch(e){
-
+    } catch (e) {
       print(e);
     }
-
   }
 
   @override
@@ -73,7 +67,9 @@ class _PlacesState extends State<Places> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        title: const Text('Search places Api' ,),
+        title: const Text(
+          'Search places Api',
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -88,9 +84,10 @@ class _PlacesState extends State<Places> {
                 floatingLabelBehavior: FloatingLabelBehavior.never,
                 prefixIcon: const Icon(Icons.map),
                 suffixIcon: IconButton(
-                  icon: const Icon(Icons.cancel), onPressed: () {
-                  _controller.clear() ;
-                },
+                  icon: const Icon(Icons.cancel),
+                  onPressed: () {
+                    _controller.clear();
+                  },
                 ),
               ),
             ),
@@ -102,11 +99,9 @@ class _PlacesState extends State<Places> {
               itemCount: _placeList.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
-                  onTap: () async {
-
-                  },
+                  onTap: () async {},
                   child: ListTile(
-                    onTap: (){
+                    onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(_placeList[index]["description"]),
