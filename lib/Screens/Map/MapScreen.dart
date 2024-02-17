@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:resq/Controller/MapScreenController.dart';
 import 'package:resq/Screens/LocationServices.dart';
 import 'package:resq/const.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 
@@ -24,6 +24,8 @@ class _MapScreenState extends State<MapScreen> {
   String _sessionToken = '1234567890';
   List<dynamic> _placeList = [];
   LatLng? _currentLocation;
+  LatLng? _source;
+  LatLng? _destination;
   bool fabEnabled = false;
   final MapScreenController _mapScreenController =
       Get.put(MapScreenController());
@@ -35,8 +37,8 @@ class _MapScreenState extends State<MapScreen> {
   BitmapDescriptor destMarkerIcon = BitmapDescriptor.defaultMarker;
 
   StreamSubscription<Position>? _positionStreamSubscription;
-  Set<Marker> _sourceMarkers = Set<Marker>();
-  Set<Marker> _destinationMarkers = Set<Marker>();
+  final Set<Marker> _sourceMarkers = <Marker>{};
+  final Set<Marker> _destinationMarkers = <Marker>{};
 
   void getSuggestion(String input) async {
     try {
@@ -59,16 +61,16 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  Completer<GoogleMapController> _controller = Completer();
-  TextEditingController _originController = TextEditingController();
-  TextEditingController _destinationController = TextEditingController();
+  final Completer<GoogleMapController> _controller = Completer();
+  final TextEditingController _originController = TextEditingController();
+  final TextEditingController _destinationController = TextEditingController();
 
-  Set<Marker> _markers = Set<Marker>();
-  Set<Polygon> _polygons = Set<Polygon>();
-  Set<Polyline> _polylines = Set<Polyline>();
+  final Set<Marker> _markers = <Marker>{};
+  final Set<Polygon> _polygons = <Polygon>{};
+  final Set<Polyline> _polylines = <Polyline>{};
   List<LatLng> polygonLatLngs = <LatLng>[];
 
-  int _polygonIdCounter = 1;
+  final int _polygonIdCounter = 1;
   int _polylineIdCounter = 1;
 
   static const CameraPosition _kGooglePlex = CameraPosition(
@@ -147,19 +149,6 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  void _setPolygon() {
-    final String polygonIdVal = 'polygon_$_polygonIdCounter';
-    _polygonIdCounter++;
-
-    _polygons.add(
-      Polygon(
-        polygonId: PolygonId(polygonIdVal),
-        points: polygonLatLngs,
-        strokeWidth: 2,
-        fillColor: Colors.transparent,
-      ),
-    );
-  }
 
   void _setPolyline(List<PointLatLng> points) {
     final String polylineIdVal = 'polyline_$_polylineIdCounter';
@@ -402,6 +391,15 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                       onPressed: () {
                         _startLocationTracking();
+
+                        _mapScreenController.storeDataIntoFirebase(
+                          _source,
+                          _destination,
+                          "condition",
+                          _source!,
+                          _destination!,
+                          uuid.v4(),
+                        );
                       },
                       child: const Row(
                         children: [
@@ -443,6 +441,8 @@ class _MapScreenState extends State<MapScreen> {
           25),
     );
     addCustomIcon();
+    _source = LatLng(lat, lng);
+    _destination = LatLng(destLat, destLng);
     _setMarker(LatLng(lat, lng), "src"); // Start location marker
     _setMarker(LatLng(destLat, destLng), "dest"); // Destination location marker
   }
@@ -488,24 +488,39 @@ class _MapScreenState extends State<MapScreen> {
   void _startLocationTracking() {
     _positionStreamSubscription =
         Geolocator.getPositionStream().listen((Position position) async {
-      _updateCameraPosition(position.latitude, position.longitude);
+          _updateCameraPosition(position.latitude, position.longitude);
 
-      // Get the updated distance and duration
-      Map<String, dynamic> result =
+          // Get the updated distance and duration
+          Map<String, dynamic> result =
           await _mapScreenController.getDistanceAndDuration(
-        _originController.text,
-        _destinationController.text,
-      );
+            _originController.text,
+            _destinationController.text,
+          );
 
-      setState(() {
-        distance = result['distance'];
-        duration = result['duration'];
-      });
+          setState(() {
+            distance = result['distance'];
+            duration = result['duration'];
+          });
 
-      // TODO: Add updated location on the firebase
-    });
+          // Get the UUID from shared preferences
+          String? orderId = await _getOrderIdFromSharedPreferences();
+
+          // Store the updated source and destination
+          _mapScreenController.storeDataIntoFirebase(
+            _source!,
+            _destination!,
+            "condition",
+            LatLng(position.latitude, position.longitude),
+            _destination!,
+            orderId,  // Pass the UUID to the storeDataIntoFirebase function
+          );
+        });
   }
 
+  _getOrderIdFromSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('orderId');
+  }
   void _updateCameraPosition(double latitude, double longitude) async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(

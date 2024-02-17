@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:resq/Screens/Auth/ProfileScreen.dart';
 import 'package:resq/Screens/HomeScreen.dart';
 
 class AuthService {
@@ -43,7 +44,8 @@ class AuthService {
     try {
       final user = await _firebaseAuth.signInWithCredential(cred);
       if (user.user != null) {
-        Get.to(HomeScreen());
+        // Get.to(HomeScreen());
+        Get.to(const ProfileScreen());
         return "Success";
       } else {
         return "Error in Otp login";

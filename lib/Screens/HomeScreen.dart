@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:resq/Screens/MapScreen.dart';
+import 'package:resq/Screens/Map/MapScreen.dart';
+import 'package:resq/Screens/Map/Places.dart';
 import 'package:resq/Screens/Menu/MenuScreen.dart';
-import 'package:resq/Screens/Places.dart';
+
 
 class HomeScreen extends StatefulWidget {
 

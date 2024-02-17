@@ -30,10 +30,18 @@ class _SignInScreenState extends State<SignInScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset('assets/auth_picture.png'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 50,
+                  ),
+                  child: Image.asset(
+                    'assets/app_icon.png',
+                    height: 100,
+                  ),
+                ),
                 const SizedBox(height: 20),
                 const Text(
-                  "Hello, Welcome",
+                  "Hello!",
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
