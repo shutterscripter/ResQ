@@ -1,4 +1,4 @@
-# resq
+# Res-Q
 
 A new Flutter project.
 
